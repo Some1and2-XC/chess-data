@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from chess import main, Player
+from chess import get_data
 
 if __name__ == "__main__":
-    user_class = Player("Hikaru Nakamura", "hikaru-nakamura")
-    main(user_class = user_class)
+    player = "hikaru"
+    get_data(player)
+    input("\t~FINISHED!")

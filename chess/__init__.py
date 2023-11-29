@@ -1,45 +1,33 @@
 #!/usr/bin/env python3
 
-from . import get_links
+import requests
+import pandas as pd
+import pickle
 
-class Player:
-    def __init__(self, name, username):
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"
+}
 
-        url_strings = {
-            " ": "%20"
-        }
-
-        for key, value in url_strings.items():
-            name = value.join(name.split(key))
-
-        self.name = name
-        self.username = username
+def get_links(player_name):
+    archives_url = f"https://api.chess.com/pub/player/{player_name}/games/archives/"
+    responce = requests.get(archives_url, headers=headers) 
+    return responce.json()["archives"]
 
 
-    def get_game_links(self):
-        from re import findall as re
-        from requests import get
-        import lxml.html
+def get_data(player_name):
+    archive_links = get_links(player_name)
+    df = None
 
-        iteration = 1  # The iteration the while loop is on
-        MAX_I = 1  # the maximum iteration the while loop will go to
-        games_links = []  # a list of games to return
+    for link in archive_links:
+        new_df = pd.DataFrame(
+            requests.get(link, headers=headers).json()["games"]
+        )
 
-        while True or iteration < MAX_I:
-            games_links.append(
-                get(f"https://www.chess.com/games/search?p1={self.name}&page={iteration}").links
-            )
-            # https://www.chess.com/games/view/
-            iteration += 1
-            print(f"i={iteration}", end="\r")
-
-        return games_list
-
-        
-        
-
-
-def main(user_class):
-    v = user_class.get_game_links()
-    print(v)
-
+        if df is None:
+            df = new_df
+        else:
+            df = pd.concat([df, new_df])
+        print(link, end="\r")
+    print("Saving Data...")
+    with open(f"player_data_{player_name}.plk", "wb") as f:
+        pickle.dump(df, f)
