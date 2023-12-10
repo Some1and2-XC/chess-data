@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import requests
-import pandas as pd
-import pickle
+from .default_imports import *
+
+from .analytics import read_stats
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"
@@ -29,5 +29,7 @@ def get_data(player_name):
             df = pd.concat([df, new_df])
         print(link, end="\r")
     print("Saving Data...")
-    with open(f"player_data_{player_name}.plk", "wb") as f:
+    filename = f"player_data_{player_name}.plk"
+    with open(filename, "wb") as f:
         pickle.dump(df, f)
+    return filename
