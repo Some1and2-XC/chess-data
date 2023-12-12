@@ -17,7 +17,6 @@ def get_file_data(filename: str) -> pd.DataFrame:
     with open(filename, "rb") as f:
         df = pickle.load(f)
         f.close()
-
     return df
 
 
@@ -36,6 +35,10 @@ def read_stats(username: str, filename: str):
     """
 
     df = get_file_data(filename)
+
+    with open("outfile.csv", "w") as f:
+        df.head(1000).to_csv(f)
+    exit()
     analytics_df = get_game_subset(df, "bullet", "chess")
 
     
@@ -49,9 +52,6 @@ def read_stats(username: str, filename: str):
 
     print(results)
     exit()
-
-    games_as_black = [1 if i["username"].lower()==username else 0 for i in analytics_df.black]
-    games_as_white = [1 if i==0 else 0 for i in games_as_black]
 
     "win timeout resigned checkmated agreed repetition"
     print(games_as_black)

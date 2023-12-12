@@ -16,11 +16,14 @@ def get_links(player_name):
 
 def get_data(player_name):
     archive_links = get_links(player_name)
+    print(archive_links)
     df = None
 
     for link in archive_links:
-        new_df = pd.DataFrame(
-            requests.get(link, headers=headers).json()["games"]
+        new_df = pd.json_normalize(
+            data=requests.get(link, headers=headers).json(),
+            record_path=["games"],
+            max_level=5
         )
 
         if df is None:
@@ -28,8 +31,9 @@ def get_data(player_name):
         else:
             df = pd.concat([df, new_df])
         print(link, end="\r")
+
     print("Saving Data...")
-    filename = f"player_data_{player_name}.plk"
+    filename = f"player_data_{player_name}_norm.plk"
     with open(filename, "wb") as f:
         pickle.dump(df, f)
     return filename
