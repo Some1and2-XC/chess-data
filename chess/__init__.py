@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 from .default_imports import *
-
-from .analytics import read_stats
+from .analytics import make_charts
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"
@@ -14,7 +13,14 @@ def get_links(player_name):
     return responce.json()["archives"]
 
 
-def get_data(player_name):
+def get_data(player_name, get_df = False):
+    """
+    Function for getting the player data
+    if get_df is false, the filename of the saved data is returned
+    if get_df is true, the dataframe is returned
+    either case a .plk file is saved
+    """
+
     archive_links = get_links(player_name)
     print(archive_links)
     df = None
@@ -36,4 +42,9 @@ def get_data(player_name):
     filename = f"player_data_{player_name}_norm.plk"
     with open(filename, "wb") as f:
         pickle.dump(df, f)
-    return filename
+
+    if get_df:
+        return df
+    else:
+        return filename
+
