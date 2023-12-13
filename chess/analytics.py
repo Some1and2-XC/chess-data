@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from .default_imports import *
+from . import draw_charts
 
 def get_file_data(filename: str) -> pd.DataFrame:
     """
@@ -43,23 +44,6 @@ def get_score(df, username: str, col_checked: str, col_result: str, conditions: 
     return df
 
 
-def win_hist(df_wins, df_losses, df_draws, filename):
-    sns.histplot(
-        data=[df_wins, df_draws, df_losses],
-        x="rating",
-        multiple="dodge",
-        discrete=True
-    )
-    plt.show()
-    """
-    plt.hist(df["black.rating"], 20, (1800, 4000), histtype="bar")
-    plt.xlabel("Result Frequency")
-    plt.ylabel("Amount of Games")
-    plt.title("Result Frequencies")
-    plt.show()
-    """
-
-
 def make_charts(username: str, filename: str):
     """
     Function for reading the stats of a player from a stats file
@@ -87,7 +71,13 @@ def make_charts(username: str, filename: str):
     ]
 
     # Swaps white and black if the username is different
+    analytics_df.insert(12, "is_black", [False] * len(analytics_df))
     for swap in values_to_swap:
+        analytics_df.loc[ \
+            analytics_df["black.username"].str.lower() == username.lower(), \
+            "is_black" \
+        ] = True
+
         analytics_df.loc[ \
             analytics_df["black.username"].str.lower() == username.lower(), \
             swap \
@@ -98,16 +88,27 @@ def make_charts(username: str, filename: str):
     games_won = analytics_df[analytics_df.result == 1]
 
     # Saves Graphs
+    rating_range = (analytics_df["black.rating"].min(), analytics_df["black.rating"].max())
 
+    draw_charts.result_pie_chart(
+        len(analytics_df.loc[analytics_df.result == 1, "black.rating"]),
+        len(analytics_df.loc[analytics_df.result == 0.5, "black.rating"]),
+        len(analytics_df.loc[analytics_df.result == 0, "black.rating"]),
+        chart_title=f"Game Results of {username}"
+    )
 
-    """
-    win_hist(
-            analytics_df.loc[analytics_df.result == 1, "black.rating"],
-            analytics_df.loc[analytics_df.result == 0.5, "black.rating"],
-            analytics_df.loc[analytics_df.result == 0, "black.rating"],
-            "")
+    draw_charts.wins_on_colors(analytics_df, username=username)
+
+    draw_charts.result_hist(
+        analytics_df.loc[analytics_df.result == 1, "black.rating"],
+        analytics_df.loc[analytics_df.result == 0.5, "black.rating"],
+        analytics_df.loc[analytics_df.result == 0, "black.rating"],
+        "",
+        rating_range=rating_range,
+        username=username
+    )
+
     with open("outfile.csv", "w") as f:
         analytics_df.head(1000).to_csv(f)
-    """
 
     return analytics_df

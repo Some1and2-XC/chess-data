@@ -13,12 +13,10 @@ def get_links(player_name):
     return responce.json()["archives"]
 
 
-def get_data(player_name, get_df = False):
+def get_data(player_name):
     """
     Function for getting the player data
-    if get_df is false, the filename of the saved data is returned
-    if get_df is true, the dataframe is returned
-    either case a .plk file is saved
+    returns filename of plt file
     """
 
     archive_links = get_links(player_name)
@@ -43,8 +41,5 @@ def get_data(player_name, get_df = False):
     with open(filename, "wb") as f:
         pickle.dump(df, f)
 
-    if get_df:
-        return df
-    else:
-        return filename
+    return filename
 
